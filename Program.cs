@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NumberGuesser
 {
@@ -7,9 +8,9 @@ namespace NumberGuesser
         static void showGreeting()
         {
             Console.WriteLine("Hi, welcome to Number Guesser. This program will try to guess a number you are thinking of " +
-                                "between 1 and 1024 inclusive. Think of a number within the range. The program will guess your number " +
+                                "between 1 and N inclusive, where N is a number you choose. Think of a number within the range. The program will guess your number " +
                                 "then you will have to say type \"Higher\" if your number is greater than the guess, \"Lower\" if your number " +
-                                "is less than the guess, or \"Correct\" if your number is equal to the guess. Type \"Start\" when you are ready.");
+                                "is less than the guess, or \"Correct\" if your number is equal to the guess.");
         }
 
         static double CalculateGuess(double minNum, double maxNum)
@@ -21,34 +22,63 @@ namespace NumberGuesser
         {
             showGreeting();
 
-            double minNum = 1;
-            double maxNum = 1024;
+            List<int> guessesOfEachGame = new List<int>();
+            int averageNumGuesses;
 
-            string start = Console.ReadLine();
-
-            Boolean correctGuess = false;
-            string userAnswer;
-
-            while (!correctGuess)
+            Boolean quit = false;
+            while (!quit)
             {
-                double currentGuess = CalculateGuess(minNum, maxNum);
-                Console.WriteLine($"Is your number {currentGuess}?");
-                userAnswer = Console.ReadLine();
+                int numGuesses = 0;
 
-                if (userAnswer == "Correct")
+                double minNum = 1;
+                Console.Write("Enter a number you want to be the upper limit: ");
+                double maxNum = double.Parse(Console.ReadLine());
+
+                double maxNumGuesses = Math.Log2(maxNum) + 1;
+                maxNumGuesses = (int)maxNumGuesses;
+                Console.WriteLine($"The maximum number of guesses needed is {maxNumGuesses}");
+
+                Boolean correctGuess = false;
+                string userAnswer;
+
+                while (!correctGuess)
                 {
-                    correctGuess = true;
-                    Console.WriteLine("I win! Game over.");
-                }
-                else if (userAnswer == "Lower")
-                {
-                    maxNum = currentGuess - 1;
-                }
-                else if (userAnswer == "Higher")
-                {
-                    minNum = currentGuess + 1;
+                    double currentGuess = CalculateGuess(minNum, maxNum);
+                    Console.WriteLine($"Is your number {currentGuess}?");
+                    numGuesses++;
+                    userAnswer = Console.ReadLine();
+
+                    if (userAnswer == "Correct")
+                    {
+                        correctGuess = true;
+                        Console.WriteLine("I win! Game over.");
+                        guessesOfEachGame.Add(numGuesses);
+
+                        Console.WriteLine("Would you like to play again? Type \"Yes\" to continue or \"No\" to quit");
+                        string replayAnswer = Console.ReadLine();
+                        if (replayAnswer == "No")
+                        {
+                            quit = true;
+                        }
+                    }
+                    else if (userAnswer == "Lower")
+                    {
+                        maxNum = currentGuess - 1;
+                    }
+                    else if (userAnswer == "Higher")
+                    {
+                        minNum = currentGuess + 1;
+                    }
                 }
             }
+
+            int sum = 0;
+            foreach (int guess in guessesOfEachGame)
+            {
+                sum += guess;
+            }
+            averageNumGuesses = sum / guessesOfEachGame.Count;
+            Console.WriteLine($"The average number of guesses for all the games played is {averageNumGuesses}.");
 
         }
     }
